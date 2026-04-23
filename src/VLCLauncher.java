@@ -17,7 +17,6 @@ public class VLCLauncher {
         command.add(streamUrl);
 
         try {
-            System.out.println("Attempting to launch: " + vlcPath);
             ProcessBuilder pb = new ProcessBuilder(command);
             pb.inheritIO(); // Optional: redirects VLC errors to your Java console
             pb.start();
