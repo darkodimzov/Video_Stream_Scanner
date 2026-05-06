@@ -17,24 +17,37 @@ public class ScannerEngine {
             final int currentPort = port;
             executor.submit(() -> {
                 try (Socket socket = new Socket()) {
-                    socket.connect(new InetSocketAddress(ip, currentPort), 200);
-                    System.out.printf("[OPEN] %-15s | Port: %d%n", ip, currentPort);
-
-                    // Logic to trigger VLC
-                    if (currentPort == 1935 && launchedIps.add(ip)) {
-                        System.out.println(">>> Found Stream on " + ip + ". Launching VLC...");
-                        vlcLauncher.openNetworkStream(ip);
-                    }
+                    socket.connect(new InetSocketAddress(ip, currentPort), 250);
+                    handleOpenPort(ip, currentPort);
                 } catch (IOException ignored) {}
             });
+        }
+    }
+
+    private void handleOpenPort(String ip, int port) {
+        System.out.printf("[OPEN] %-15s | Port: %d%n", ip, port);
+
+        // RTSP / RTMP
+        if ((port == 554 || port == 1935) && launchedIps.add(ip)) {
+            vlcLauncher.openNetworkStream(ip, port);
+        }
+        // HTTP / HTTPS
+        else if (port == 80 || port == 443 || port == 8000 || port == 8080) {
+            if (StreamDetector.isHttpVideo(ip, port) && launchedIps.add(ip)) {
+                System.out.println(">>> Found HTTP Stream on " + ip);
+                vlcLauncher.openNetworkStream(ip, port);
+            }
         }
     }
 
     public void stop() {
         executor.shutdown();
         try {
-            executor.awaitTermination(1, TimeUnit.HOURS);
+            if (!executor.awaitTermination(30, TimeUnit.MINUTES)) {
+                executor.shutdownNow();
+            }
         } catch (InterruptedException e) {
+            executor.shutdownNow();
             Thread.currentThread().interrupt();
         }
     }

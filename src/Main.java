@@ -66,7 +66,12 @@ public class Main {
         // 5. Start Scanner
         if (!targets.isEmpty()) {
             ScannerEngine engine = new ScannerEngine(250);
-            System.out.println("\nScanning " + targets.size() + " host(s) on ports " + startPort + "-" + endPort + "...");
+            if (startPort == endPort) {
+                System.out.println("\nScanning " + targets.size() + " host(s) on port " + startPort + "...");
+            }
+            else {
+                System.out.println("\nScanning " + targets.size() + " host(s) on ports " + startPort + "-" + endPort + "...");
+            }
 
             for (String ip : targets) {
                 engine.scanAddress(ip, startPort, endPort);
