@@ -27,15 +27,14 @@ public class ScannerEngine {
     private void handleOpenPort(String ip, int port) {
         System.out.printf("[OPEN] %-15s | Port: %d%n", ip, port);
 
-        // RTSP / RTMP
         if ((port == 554 || port == 1935) && launchedIps.add(ip)) {
-            vlcLauncher.openNetworkStream(ip, port);
+            vlcLauncher.openNetworkStream(ip, port, "/live");
         }
-        // HTTP / HTTPS
         else if (port == 80 || port == 443 || port == 8000 || port == 8080) {
-            if (StreamDetector.isHttpVideo(ip, port) && launchedIps.add(ip)) {
-                System.out.println(">>> Found HTTP Stream on " + ip);
-                vlcLauncher.openNetworkStream(ip, port);
+            String detectedPath = StreamDetector.detectHttpVideoStreamPath(ip, port);
+
+            if (detectedPath != null && launchedIps.add(ip)) {
+                vlcLauncher.openNetworkStream(ip, port, detectedPath);
             }
         }
     }

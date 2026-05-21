@@ -5,7 +5,7 @@ import java.util.List;
 
 public class VLCLauncher {
 
-    public void openNetworkStream(String ip, int port) {
+    public void openNetworkStream(String ip, int port, String path) {
         String protocol;
         switch (port) {
             case 554:  protocol = "rtsp"; break;
@@ -14,7 +14,8 @@ public class VLCLauncher {
             default:   protocol = "http"; break;
         }
 
-        String streamUrl = protocol + "://" + ip + ":" + port;
+        String streamUrl = protocol + "://" + ip + ":" + port + path;
+
         String os = System.getProperty("os.name").toLowerCase();
         String vlcPath = getVlcExecutablePath(os);
 
